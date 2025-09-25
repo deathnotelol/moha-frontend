@@ -4,31 +4,17 @@ import Slider from "react-slick";
 import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const PostDetail = () => {
   const { id } = useParams();
   const [post, setPost] = useState(null);
+  const [images, setImages] = useState([]);
 
-  useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        const response = await api.get(`/posts/${id}`);
-        setPost(response.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchPost();
-  }, [id]);
+  const placeholderImg = "/no-image.png"; // public/no-image.png
 
-  if (!post) return <p className="text-center py-20">Loading...</p>;
-
-  const images = Array.isArray(post.all_images) ? post.all_images : [];
-
-  /** 
-   * Strip out <img> tags and centered captions (<div style="text-align:center">…</div>)
-   */
-  const cleanFulltext = (html) => {
+ const cleanFulltext = (html) => {
     if (!html) return "";
     let cleaned = html;
 
@@ -47,65 +33,102 @@ const PostDetail = () => {
     return cleaned;
   };
 
-  const formatDate = (dateString) => {
-    const d = new Date(dateString);
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
+  const fetchPost = async () => {
+    try {
+      const res = await api.get(`/posts/${id}`);
+      setPost(res.data);
+
+      const rawImages = Array.isArray(res.data.all_images) ? res.data.all_images : [];
+      const normalizedImages = rawImages
+        .map((img) => img.split("#")[0].replace(/%20/g, " ").trim())
+        .filter((img) => img && img !== "");
+      const uniqueImages = [...new Set(normalizedImages)];
+      setImages(uniqueImages);
+    } catch (err) {
+      console.error("Failed to fetch post", err);
+    }
   };
 
-  const settings = {
+  useEffect(() => {
+    fetchPost();
+  }, [id]);
+
+  const formatDate = (dateString) => {
+    const d = new Date(dateString);
+    return `${String(d.getDate()).padStart(2, "0")}-${String(d.getMonth() + 1).padStart(2, "0")}-${d.getFullYear()}`;
+  };
+
+  if (!post) return <p className="text-center py-20 text-gray-500">Loading...</p>;
+
+  const sliderSettings = {
     dots: true,
     infinite: true,
-    speed: 500,
-    slidesToShow: images.length < 2 ? 1 : 2,
+    speed: 600,
+    slidesToShow: 2,
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 4000,
     arrows: true,
     adaptiveHeight: true,
+    swipeToSlide: true,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: { slidesToShow: 2 }
+      },
+      {
+        breakpoint: 768,
+        settings: { slidesToShow: 1 }
+      },
+      {
+        breakpoint: 480,
+        settings: { slidesToShow: 1 }
+      }
+    ]
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <Navbar />
-      <main className="flex-1 mt-20">
-        <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
-          {/* Title */}
-          <h1 className="text-2xl font-bold mb-6 text-center leading-snug">
-            {post.title}
-          </h1>
+      <main className="flex-1 mt-24 w-full">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="bg-white shadow-xl rounded-2xl p-6 md:p-10">
+            <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center leading-snug">{post.title}</h1>
 
-          {/* Slideshow */}
-          {images.length > 0 && (
-            <div className="mb-6 shadow-md rounded-lg overflow-hidden">
-              <Slider {...settings}>
-                {images.map((img, idx) => (
-                  <div key={idx} className="flex justify-center bg-white">
-                    <img
-                      src={`https://10.10.6.15/moha-api/public/${img}`}
-                      alt={`${post.title}-${idx}`}
-                      className="rounded-lg max-h-[500px] mx-auto object-contain"
-                    />
-                  </div>
-                ))}
-              </Slider>
+            {images.length > 0 ? (
+              <div className="mb-8 rounded-xl overflow-hidden shadow-md">
+                <Slider {...sliderSettings}>
+                  {images.map((img, idx) => (
+                    <div key={idx} className="flex justify-center bg-black/5 p-2">
+                      <img
+                        src={`https://10.10.6.15/moha-api/public/${img}`}
+                        alt={`${post.title}-${idx}`}
+                        className="rounded-xl max-h-[500px] w-auto mx-auto object-contain transition-transform duration-300 hover:scale-105"
+                      />
+                    </div>
+                  ))}
+                </Slider>
+              </div>
+            ) : (
+              <div className="mb-8 flex justify-center">
+                <img
+                  src={placeholderImg}
+                  alt="No Image"
+                  className="rounded-xl max-h-[400px] mx-auto object-contain opacity-70"
+                />
+              </div>
+            )}
+
+            <div className="text-right text-sm text-gray-600 mb-6">
+              Published: <span className="font-medium text-blue-700">{formatDate(post.published_at)}</span>
             </div>
-          )}
+            <div className="border-b border-gray-200 mb-6"></div>
 
-          {/* Meta info */}
-          <h3 className="text-sm text-blue-700 font-semibold mb-3 text-right">
-            Published: {formatDate(post.published_at)}
-          </h3>
-
-          <div className="border-b border-gray-300 mb-6"></div>
-
-          {/* Fulltext without images and captions */}
-          <div
-            className="prose max-w-none text-[18px] leading-relaxed text-justify"
-            dangerouslySetInnerHTML={{ __html: cleanFulltext(post.fulltext) }}
-          />
+            <div
+              className="prose max-w-none prose-p:leading-relaxed prose-headings:text-gray-800 prose-a:text-blue-600 hover:prose-a:underline text-justify"
+              dangerouslySetInnerHTML={{ __html: cleanFulltext(post.fulltext) }}
+            />
+          </div>
         </div>
       </main>
       <Footer />

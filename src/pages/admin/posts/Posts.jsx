@@ -109,14 +109,14 @@ useEffect(() => {
     placeholder="Search posts..."
     value={search}
     onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-    className="border p-2 rounded"
+    className="border flex-auto p-2 rounded"
   />
 
   {/* Category filter */} 
   <select
     value={categoryId}
     onChange={(e) => { setCategoryId(e.target.value); setPage(1); }}
-    className="border p-2 rounded"
+    className="border flex-auto p-2 rounded"
   >
     <option value="">All Categories</option>
     {categories.map((c) => (
@@ -150,16 +150,17 @@ useEffect(() => {
                 <td className="p-2">{p.id}</td>
                 <td className="p-2">{truncateText(p.title, 150)}</td>
                 <td className="p-2">
-                  {p.images && p.images.length > 0 ? (
-                    <img
-                      src={`https://10.10.6.15/moha-api/public/${p.images[0]}`}
-                      alt={p.title}
-                      className="w-[75px] h-[75px] object-cover rounded"
-                    />
-                  ) : (
-                    <span className="text-gray-400 italic">No Image</span>
-                  )}
-                </td>
+  {p.images && p.images.length > 0 && p.images[0] ? (
+    <img
+      src={`https://10.10.6.15/moha-api/public/${p.images[0]}`}
+      alt={p.title}
+      className="w-[75px] h-[75px] object-cover rounded"
+    />
+  ) : (
+    <span className="text-gray-400 italic">No Image</span>
+  )}
+</td>
+
                 <td className="p-2 space-x-2">
                   <button
                     onClick={() => navigate(`/admini/posts/edit/${p.id}`)}

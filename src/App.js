@@ -20,6 +20,10 @@ import ManageMenus from "./pages/admin/ManageMenus";
 import Categories from "./pages/admin/categories/Categories";
 import CategoryCreate from "./pages/admin/categories/CategoryCreate";
 import CategoryEdit from "./pages/admin/categories/CategoryEdit";
+import SearchPage from "./components/SearchPage";
+import VideoGallery from "./pages/VideoGallery";
+import Announcements from "./pages/Announcements";
+
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -85,6 +89,15 @@ export default function App() {
             </PrivateRoute>
           }
         />
+
+        {/* Search page */}
+        <Route path="/search" element={<SearchPage />} />
+
+        {/* Video Gallery */}
+        <Route path="/videos" element={<VideoGallery />} />
+
+        {/* Announcements */}
+         <Route path="/announcments" element={<Announcements />} />
 
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" />} />

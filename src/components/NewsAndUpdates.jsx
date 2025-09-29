@@ -12,9 +12,12 @@ export default function NewsAndUpdates() {
 
   async function fetchPosts() {
     try {
-      const res = await api.get("/posts");
+      // ✅ API ကနေတဆင့် category_id=1 အတွက်တင်ယူမယ်
+      const res = await api.get("/posts?category_id=1");
       const allPosts = res.data.data || [];
-      setPosts(allPosts.slice(0, 4)); // ✅ frontend မှာ ၄ ခုထိဖြတ်
+
+      // ✅ ပထမဆုံး ၄ ခုထိသာယူမယ်
+      setPosts(allPosts.slice(0, 4));
     } catch (err) {
       console.error(err);
     }
@@ -31,7 +34,8 @@ export default function NewsAndUpdates() {
           <span className="absolute left-0 -bottom-2 w-full h-1 bg-blue-600 rounded-full"></span>
         </h2>
         <p className="text-gray-600 mb-14 text-lg max-w-2xl mx-auto">
-          ပြည်ထဲရေး၀န်ကြီးဌာန၊ ပြည်ထောင်စု၀န်ကြီးရုံးနှင့် ကွပ်ကဲမှုအောက်ရှိ တပ်ဖွဲ့/ဦးစီးဌာနများ၏ လှုပ်ရှားမှုသတင်းများအားဖော်ပြခြင်း
+          ပြည်ထဲရေး၀န်ကြီးဌာန၊ ပြည်ထောင်စု၀န်ကြီးရုံးနှင့် ကွပ်ကဲမှုအောက်ရှိ
+          တပ်ဖွဲ့/ဦးစီးဌာနများ၏ လှုပ်ရှားမှုသတင်းများအားဖော်ပြခြင်း
         </p>
 
         {/* Posts grid */}

@@ -19,34 +19,32 @@ export default function Posts() {
   const [categoryId, setCategoryId] = useState("");
 
   useEffect(() => {
-  async function fetchCategories() {
-    try {
-      const res = await api.get("/categories");
-      setCategories(res.data);
-    } catch (err) {
-      console.error("Failed to load categories", err);
+    async function fetchCategories() {
+      try {
+        const res = await api.get("/categories");
+        setCategories(res.data);
+      } catch (err) {
+        console.error("Failed to load categories", err);
+      }
     }
-  }
-  fetchCategories();
-}, []);
-
+    fetchCategories();
+  }, []);
 
   const fetchPosts = async (pageNum = 1) => {
-  const res = await api.get(`/posts`, {
-    params: {
-      page: pageNum,
-      search: search || undefined,
-      category_id: categoryId || undefined,
-    },
-  });
-  setPosts(res.data.data);
-  setLastPage(res.data.last_page);
-};
+    const res = await api.get(`/posts`, {
+      params: {
+        page: pageNum,
+        search: search || undefined,
+        category_id: categoryId || undefined,
+      },
+    });
+    setPosts(res.data.data);
+    setLastPage(res.data.last_page);
+  };
 
-
-useEffect(() => {
-  fetchPosts(page);
-}, [page, search, categoryId]);
+  useEffect(() => {
+    fetchPosts(page);
+  }, [page, search, categoryId]);
 
   // handle query message
   useEffect(() => {
@@ -102,28 +100,36 @@ useEffect(() => {
             {message}
           </div>
         )}
-  <div className="flex gap-2 mb-4"> 
-  {/* Search box */}
-  <input
-    type="text"
-    placeholder="Search posts..."
-    value={search}
-    onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-    className="border flex-auto p-2 rounded"
-  />
+        <div className="flex gap-2 mb-4">
+          {/* Search box */}
+          <input
+            type="text"
+            placeholder="Search posts..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="border flex-auto p-2 rounded"
+          />
 
-  {/* Category filter */} 
-  <select
-    value={categoryId}
-    onChange={(e) => { setCategoryId(e.target.value); setPage(1); }}
-    className="border flex-auto p-2 rounded"
-  >
-    <option value="">All Categories</option>
-    {categories.map((c) => (
-      <option key={c.id} value={c.id}>{c.title}</option>
-    ))}
-  </select>
-  </div>
+          {/* Category filter */}
+          <select
+            value={categoryId}
+            onChange={(e) => {
+              setCategoryId(e.target.value);
+              setPage(1);
+            }}
+            className="border flex-auto p-2 rounded"
+          >
+            <option value="">All Categories</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.title}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Manage Posts</h2>
@@ -150,16 +156,16 @@ useEffect(() => {
                 <td className="p-2">{p.id}</td>
                 <td className="p-2">{truncateText(p.title, 150)}</td>
                 <td className="p-2">
-  {p.images && p.images.length > 0 && p.images[0] ? (
-    <img
-      src={`https://10.10.6.15/moha-api/public/${p.images[0]}`}
-      alt={p.title}
-      className="w-[75px] h-[75px] object-cover rounded"
-    />
-  ) : (
-    <span className="text-gray-400 italic">No Image</span>
-  )}
-</td>
+                  {p.images && p.images.length > 0 && p.images[0] ? (
+                    <img
+                      src={`https://10.10.6.15/moha-api/public/${p.images[0]}`}
+                      alt={p.title}
+                      className="w-[75px] h-[75px] object-cover rounded"
+                    />
+                  ) : (
+                    <span className="text-gray-400 italic">No Image</span>
+                  )}
+                </td>
 
                 <td className="p-2 space-x-2">
                   <button

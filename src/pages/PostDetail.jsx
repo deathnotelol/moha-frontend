@@ -14,7 +14,8 @@ const PostDetail = () => {
 
   const placeholderImg = "/no-image.png"; // public/no-image.png
 
- const cleanFulltext = (html) => {
+  // ✅ Clean + Fix Links
+  const cleanFulltext = (html) => {
     if (!html) return "";
     let cleaned = html;
 
@@ -27,8 +28,14 @@ const PostDetail = () => {
       ""
     );
 
-    // Optionally remove empty spans/divs left over
+    // Remove empty spans/divs
     cleaned = cleaned.replace(/<div[^>]*>\s*<\/div>/gi, "");
+
+    // ✅ Fix relative href="images/...." → absolute API path
+    cleaned = cleaned.replace(
+      /href="(images\/[^"]+)"/g,
+      'href="https://10.10.6.15/moha-api/public/storage/uploads/$1"'
+    );
 
     return cleaned;
   };
@@ -72,18 +79,9 @@ const PostDetail = () => {
     adaptiveHeight: true,
     swipeToSlide: true,
     responsive: [
-      {
-        breakpoint: 1024,
-        settings: { slidesToShow: 2 }
-      },
-      {
-        breakpoint: 768,
-        settings: { slidesToShow: 1 }
-      },
-      {
-        breakpoint: 480,
-        settings: { slidesToShow: 1 }
-      }
+      { breakpoint: 1024, settings: { slidesToShow: 2 } },
+      { breakpoint: 768, settings: { slidesToShow: 1 } },
+      { breakpoint: 480, settings: { slidesToShow: 1 } }
     ]
   };
 
@@ -93,7 +91,9 @@ const PostDetail = () => {
       <main className="flex-1 mt-24 w-full">
         <div className="max-w-7xl mx-auto px-6">
           <div className="bg-white shadow-xl rounded-2xl p-6 md:p-10">
-            <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center leading-snug">{post.title}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center leading-snug">
+              {post.title}
+            </h1>
 
             {images.length > 0 ? (
               <div className="mb-8 rounded-xl overflow-hidden shadow-md">
@@ -120,7 +120,10 @@ const PostDetail = () => {
             )}
 
             <div className="text-right text-sm text-gray-600 mb-6">
-              Published: <span className="font-medium text-blue-700">{formatDate(post.published_at)}</span>
+              Published:{" "}
+              <span className="font-medium text-blue-700">
+                {formatDate(post.published_at)}
+              </span>
             </div>
             <div className="border-b border-gray-200 mb-6"></div>
 

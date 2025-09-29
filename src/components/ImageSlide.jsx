@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 // Wrap function without popmotion
 const wrap = (min, max, val) => {
   const range = max - min;
-  return ((val - min) % range + range) % range + min;
+  return ((((val - min) % range) + range) % range) + min;
 };
 
 const slides = [
@@ -12,26 +12,31 @@ const slides = [
     id: 1,
     img: "/images/slide/mpf.jpg",
     description: "မြန်မာနိုင်ငံရဲတပ်ဖွဲ့",
+    subtext: "ပြည်တွင်းလုံခြုံရေး၊ တရားဥပဒေစိုးမိုးရေး၊ မူးယစ်ဆေးဝါးအန္တရာယ်တားဆီးကာကွယ်ရေး...",
   },
   {
     id: 2,
     img: "/images/slide/GAD.jpg",
     description: "အထွေထွေအုပ်ချုပ်ရေးဦးစီးဌာန",
+    subtext: "ရပ်ရွာအေးချမ်းသာယာရေးနှင့် ဒေသဖွံ့ဖြိုးရေးတာဝန်ရှိသောဌာန",
   },
   {
     id: 3,
     img: "/images/slide/BSI.jpg",
     description: "အထူးစုံစမ်းစစ်ဆေးရေးဦးစီးဌာန",
+    subtext: "ဖြစ်ရပ်မှန်စုံစမ်းဖော်ထုတ်ပြီး တရားဥပဒေစိုးမိုးရေးအတွက်ဆောင်ရွက်",
   },
   {
     id: 4,
     img: "/images/slide/pd.jpg",
     description: "အကျဉ်းဦးစီးဌာန",
+    subtext: "အကျဉ်းသားများအကျင့်ပြုပြင်ရေး၊ လုံခြုံစွာထိန်းသိမ်းရေး",
   },
   {
     id: 5,
     img: "/images/slide/fsd.jpg",
     description: "မီးသတ်ဦးစီးဌာန",
+    subtext: "မီးဘေးအန္တရာယ်ကာကွယ်ရေး၊ ပြည်သူလုံခြုံရေးဆောင်ရွက်",
   },
 ];
 
@@ -93,9 +98,36 @@ export default function ImageSlide() {
             alt={`slide-${slides[slideIndex].id}`}
             className="w-full h-[70vh] object-cover"
           />
-          <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-6 py-3 rounded-md">
-            {slides[slideIndex].description}
-          </div>
+
+          {/* Description box with animation */}
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="absolute bottom-10 left-1/2 transform -translate-x-1/2 
+             bg-white/10 backdrop-blur-lg 
+             px-8 py-5 rounded-2xl shadow-xl 
+             border border-white/20 max-w-lg text-center"
+          >
+            {/* Gradient Title */}
+            <h3
+              className="text-3xl font-extrabold drop-shadow-md 
+               bg-gradient-to-r from-blue-500 via-cyan-300 to-teal-200 
+               bg-clip-text text-transparent py-3"
+            >
+              {slides[slideIndex].description}
+            </h3>
+
+            {/* Gradient Subtitle */}
+            {/* <p
+              className="text-base mt-3 font-medium 
+               bg-gradient-to-r from-green-400 via-green-300 to-green-200 
+               bg-clip-text text-transparent py-2"
+            >
+              {slides[slideIndex].subtext}
+            </p> */}
+          </motion.div>
         </motion.div>
       </AnimatePresence>
 
@@ -118,9 +150,7 @@ export default function ImageSlide() {
         {slides.map((_, idx) => (
           <button
             key={idx}
-            onClick={() =>
-              setPage([idx, idx > slideIndex ? 1 : -1])
-            }
+            onClick={() => setPage([idx, idx > slideIndex ? 1 : -1])}
             className={`w-3 h-3 rounded-full ${
               idx === slideIndex ? "bg-white" : "bg-gray-400"
             }`}

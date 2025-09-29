@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-const Media = () => {
+const Announcements = () => {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -13,7 +13,7 @@ const Media = () => {
   // fetch posts with pagination
 const fetchPosts = async (pageNum = 1) => {
   try {
-    const response = await api.get(`/posts?page=${pageNum}&category_id=1`);
+    const response = await api.get(`/posts?page=${pageNum}&category_id=5`);
     setPosts(response.data.data);
     setLastPage(response.data.last_page);
   } catch (err) {
@@ -68,7 +68,7 @@ const fetchPosts = async (pageNum = 1) => {
           bg-gradient-to-r from-blue-500 via-yellow-400 to-green-500 bg-[length:200%_200%] drop-shadow-lg
           bg-clip-text text-transparent py-3 my-16 text-center"
         >
-          ဝန်ကြီးဌာနသတင်းများ
+          ထုတ်ပြန်ကြေငြာချက်များ
         </h2>
         {posts.length === 0 && (
           <p className="text-center">No posts available</p>
@@ -159,4 +159,4 @@ const fetchPosts = async (pageNum = 1) => {
   );
 };
 
-export default Media;
+export default Announcements;

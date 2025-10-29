@@ -5,6 +5,7 @@ import Features from "../components/Features";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import ImageSlide from "../components/ImageSlide";
+import FeaturesBotton from "../components/FeaturesBotton";
 
 
 export default function Home() {
@@ -16,6 +17,7 @@ export default function Home() {
       <NewsAndUpdates />
       <ImageSlide />
       <Features />
+      <FeaturesBotton />
       <Footer />
     </div>
   );

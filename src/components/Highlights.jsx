@@ -6,7 +6,7 @@ const highlights = [
     id: 1,
     icon: (
       <img
-        src="images/mpf_logo.png"
+        src={`${process.env.PUBLIC_URL}/images/mpf_logo.png`}
         className="h-16 w-16 object-contain"
         alt="logoimage"
       />
@@ -19,7 +19,7 @@ const highlights = [
     id: 2,
     icon: (
       <img
-        src="images/gad_logo.jpg"
+        src={`${process.env.PUBLIC_URL}/images/gad_logo.jpg`}
         className="h-16 w-16 object-contain"
         alt="logoimage"
       />
@@ -32,7 +32,7 @@ const highlights = [
     id: 3,
     icon: (
       <img
-        src="images/bsi_logo.jpg"
+        src={`${process.env.PUBLIC_URL}/images/bsi_logo.jpg`}
         className="h-16 w-16 object-contain"
         alt="logoimage"
       />
@@ -45,7 +45,7 @@ const highlights = [
     id: 4,
     icon: (
       <img
-        src="images/pd_logo.png"
+        src={`${process.env.PUBLIC_URL}/images/pd_logo.png`}
         className="h-16 w-16 object-contain"
         alt="logoimage"
       />
@@ -58,7 +58,7 @@ const highlights = [
     id: 5,
     icon: (
       <img
-        src="images/fsd_logo.png"
+        src={`${process.env.PUBLIC_URL}/images/fsd_logo.png`}
         className="h-16 w-16 object-contain"
         alt="logoimage"
       />

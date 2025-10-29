@@ -10,31 +10,31 @@ const wrap = (min, max, val) => {
 const slides = [
   {
     id: 1,
-    img: "/images/slide/mpf.jpg",
+    img: process.env.PUBLIC_URL + "/images/slide/mpf.jpg",
     description: "မြန်မာနိုင်ငံရဲတပ်ဖွဲ့",
     subtext: "ပြည်တွင်းလုံခြုံရေး၊ တရားဥပဒေစိုးမိုးရေး၊ မူးယစ်ဆေးဝါးအန္တရာယ်တားဆီးကာကွယ်ရေး...",
   },
   {
     id: 2,
-    img: "/images/slide/GAD.jpg",
+    img: process.env.PUBLIC_URL + "/images/slide/GAD.jpg",
     description: "အထွေထွေအုပ်ချုပ်ရေးဦးစီးဌာန",
     subtext: "ရပ်ရွာအေးချမ်းသာယာရေးနှင့် ဒေသဖွံ့ဖြိုးရေးတာဝန်ရှိသောဌာန",
   },
   {
     id: 3,
-    img: "/images/slide/BSI.jpg",
+    img: process.env.PUBLIC_URL + "/images/slide/BSI.jpg",
     description: "အထူးစုံစမ်းစစ်ဆေးရေးဦးစီးဌာန",
     subtext: "ဖြစ်ရပ်မှန်စုံစမ်းဖော်ထုတ်ပြီး တရားဥပဒေစိုးမိုးရေးအတွက်ဆောင်ရွက်",
   },
   {
     id: 4,
-    img: "/images/slide/pd.jpg",
+    img: process.env.PUBLIC_URL + "/images/slide/pd.jpg",
     description: "အကျဉ်းဦးစီးဌာန",
     subtext: "အကျဉ်းသားများအကျင့်ပြုပြင်ရေး၊ လုံခြုံစွာထိန်းသိမ်းရေး",
   },
   {
     id: 5,
-    img: "/images/slide/fsd.jpg",
+    img: process.env.PUBLIC_URL + "/images/slide/fsd.jpg",
     description: "မီးသတ်ဦးစီးဌာန",
     subtext: "မီးဘေးအန္တရာယ်ကာကွယ်ရေး၊ ပြည်သူလုံခြုံရေးဆောင်ရွက်",
   },

@@ -3,7 +3,7 @@ export default function HeroBanner() {
     <div className="relative w-full h-[75vh] flex items-center justify-center">
       {/* Background Image */}
       <img
-        src="/images/moha-office.jpg"
+        src={`${process.env.PUBLIC_URL}/images/moha-office.jpg`}
         alt="Hero Banner"
         className="absolute inset-0 w-full h-full object-cover brightness-125"
       />

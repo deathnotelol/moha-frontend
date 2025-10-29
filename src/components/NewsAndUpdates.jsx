@@ -29,7 +29,9 @@ export default function NewsAndUpdates() {
 
       <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
         {/* Section Title */}
-        <h2 className="text-4xl font-extrabold mb-4 py-3 text-gray-800 relative inline-block">
+        <h2 className="text-3xl font-extrabold animate-gradient 
+                bg-gradient-to-r from-blue-500 via-yellow-400 to-green-500 bg-[length:200%_200%] drop-shadow-lg
+                bg-clip-text text-transparent py-3 mb-5 text-center">
           နောက်ဆုံးရသတင်းများ
           <span className="absolute left-0 -bottom-2 w-full h-1 bg-blue-600 rounded-full"></span>
         </h2>

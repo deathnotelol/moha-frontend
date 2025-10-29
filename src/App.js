@@ -23,6 +23,8 @@ import CategoryEdit from "./pages/admin/categories/CategoryEdit";
 import SearchPage from "./components/SearchPage";
 import VideoGallery from "./pages/VideoGallery";
 import Announcements from "./pages/Announcements";
+import NewslettersPage from "./pages/NewslettersPage";
+import TendersPage from "./pages/TendersPage";
 
 
 function PrivateRoute({ children }) {
@@ -99,9 +101,17 @@ export default function App() {
         {/* Announcements */}
          <Route path="/announcments" element={<Announcements />} />
 
+        {/* NewsLetter */}
+         <Route path="/newsletters" element={<NewslettersPage />} />
+
+        {/* TenderPage */}
+         <Route path="/tenders" element={<TendersPage />} />
+
+
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );
 }
+

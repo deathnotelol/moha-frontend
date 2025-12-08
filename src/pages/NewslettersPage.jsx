@@ -91,7 +91,7 @@ export default function NewslettersPage() {
                     {/* Read More */}
                     <div className="text-center mt-auto">
                       <Link
-                        to={`/posts/${post.id}`}
+                        to={`/mm/posts/${post.uuid}`}
                         className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-full transition shadow-md hover:shadow-lg"
                       >
                         Read More

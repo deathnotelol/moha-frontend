@@ -1,106 +1,124 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Menu, X, ChevronDown, Search, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../api/axios";
 
 export default function Navbar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [menus, setMenus] = useState([]);
+
+  // 🌐 Language from localStorage or default mm
+  const [lang, setLang] = useState(localStorage.getItem("lang") || "mm");
+
   const [open, setOpen] = useState(false);
   const [desktopHover, setDesktopHover] = useState(null);
   const [mobileOpen, setMobileOpen] = useState({});
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  // const [searchResults, setSearchResults] = useState([]);
+
   const searchRef = useRef(null);
-  const navigate = useNavigate();
 
+  // 🚀 Load menus based on Language
   useEffect(() => {
-    api.get("/menus")
-      .then(res => setMenus(res.data))
-      .catch(err => console.error(err));
-  }, []);
+    const apiUrl = lang === "mm" ? "/menus" : "/en/menus";
 
-  // click outside => close search
+    api
+      .get(apiUrl)
+      .then((res) => setMenus(res.data))
+      .catch((err) => console.log(err));
+  }, [lang]);
+
+  // 🌐 Language Switch Handler
+  const handleLangChange = (newLang) => {
+    if (newLang === lang) return;
+
+    setLang(newLang);
+    localStorage.setItem("lang", newLang);
+
+    // 🔥 Always redirect to root language page
+    if (newLang === "mm") {
+      navigate("/mm");
+    } else {
+      navigate("/en");
+    }
+  };
+
+  // 🔍 Search box outside click
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
+    const handler = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
         setSearchOpen(false);
       }
     };
-    if (searchOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [searchOpen]);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
-  const toggleMobile = (id) => {
-    setMobileOpen(prev => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  const handleMenuClick = (item) => {
-    if (item.post_id) {
-      navigate(`/posts/${item.post_id}`);
-    } else if (item.url) {
-      navigate(item.url);
-    }
-  };
-
+  // 🔎 Search Submit
   const handleSearch = (e) => {
-  e.preventDefault();
-  if (!searchQuery.trim()) return;
-  navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-  setSearchOpen(false);
-};
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
 
+    navigate(`/${lang}/search?q=${searchQuery}`);
+    setSearchQuery("");
+    setSearchOpen(false);
+  };
+
+  // Render Dropdown Recursive
   const renderMenu = (items, level = 0, isMobile = false) => (
     <ul
       className={`${
         isMobile
           ? "flex flex-col"
-          : "absolute bg-[#1D4ED8] shadow-md rounded border border-blue-200"
-      } 
-      ${level > 0 && !isMobile ? "top-0 left-full mt-1 min-w-[200px]" : ""}`}
+          : "absolute bg-blue-700 shadow rounded border border-blue-300 w-max min-w-max whitespace-nowrap"
+      } ${level > 0 && !isMobile ? "left-full top-0" : ""}`}
     >
-      {items.map(item => {
+      {items.map((item) => {
         const hasChildren = item.children && item.children.length > 0;
+
         return (
           <li key={item.id} className="relative group">
+            {/* Item */}
             {isMobile ? (
               <div
-                className="flex justify-between items-center px-4 py-2 hover:bg-[#12b903] cursor-pointer"
+                className="flex justify-between items-center px-4 py-2 hover:bg-green-500 cursor-pointer"
                 onClick={() =>
-                  hasChildren ? toggleMobile(item.id) : handleMenuClick(item)
+                  hasChildren
+                    ? setMobileOpen((p) => ({ ...p, [item.id]: !p[item.id] }))
+                    : navigate(`/${lang}${item.url}`)
                 }
               >
-                <span className="flex-1">{item.title}</span>
+                <span>{item.title}</span>
                 {hasChildren && (
                   <ChevronDown
-                    size={16}
-                    className={`transition-transform duration-300 ${
-                      mobileOpen[item.id] ? "rotate-180" : "rotate-0"
+                    className={`transition ${
+                      mobileOpen[item.id] ? "rotate-180" : ""
                     }`}
                   />
                 )}
               </div>
             ) : (
               <div
-                className="flex items-center px-4 py-2 hover:bg-[#12b903] cursor-pointer whitespace-nowrap"
-                onClick={() => !hasChildren && handleMenuClick(item)}
+                className="px-4 py-2 hover:bg-green-500 cursor-pointer whitespace-nowrap inline-block"
+                onClick={() => !hasChildren && navigate(`/${lang}${item.url}`)}
               >
                 {item.title}
-                {hasChildren && <ChevronDown size={16} className="ml-1" />}
               </div>
             )}
 
+            {/* Children */}
             {hasChildren && (
               <>
                 {isMobile ? (
                   <div
-                    className={`ml-4 overflow-hidden transition-all duration-300 ${
+                    className={`ml-4 overflow-hidden transition-all ${
                       mobileOpen[item.id] ? "max-h-screen" : "max-h-0"
                     }`}
                   >
-                    {renderMenu(item.children, level + 1, isMobile)}
+                    {renderMenu(item.children, level + 1, true)}
                   </div>
                 ) : (
                   <div className="hidden group-hover:block">
@@ -116,82 +134,103 @@ export default function Navbar() {
   );
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-[#1D4ED8] shadow z-50">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
+    <nav className="fixed w-full top-0 left-0 bg-blue-700 shadow z-50">
+      <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-3">
         {/* Logo */}
-        <div className="flex items-center space-x-3">
-          <img src={`${process.env.PUBLIC_URL}/images/logo.png`} alt="Logo" className="h-16" />
-        </div>
+        <img
+          src={`${process.env.PUBLIC_URL}/images/logo.png`}
+          className="h-16"
+          alt="logo"
+        />
 
-        {/* If Search Open => Show Search Box only */}
+        {/* Search Open */}
         {searchOpen ? (
-          <div className="flex-1 flex justify-center" ref={searchRef}>
+          <div ref={searchRef} className="flex-1 flex justify-center">
             <form
               onSubmit={handleSearch}
-              className="flex items-center w-full max-w-xl bg-white rounded-lg px-3 py-2 shadow"
+              className="flex items-center w-full max-w-xl bg-white rounded-lg px-3 py-2"
             >
-              <button
-                type="button"
+              <ArrowLeft
+                className="mr-3 cursor-pointer"
                 onClick={() => setSearchOpen(false)}
-                className="mr-2 text-gray-500 hover:text-black"
-              >
-                <ArrowLeft size={20} />
-              </button>
+              />
+
               <input
-                type="text"
-                placeholder="Search posts..."
+                className="flex-1 outline-none"
+                placeholder={lang === "mm" ? "ရှာမယ်…" : "Search…"}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 px-2 py-1 focus:outline-none"
               />
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-              >
-                Search
+
+              <button className="bg-blue-600 text-white px-4 py-2 rounded">
+                {lang === "mm" ? "ရှာမယ်" : "Search"}
               </button>
             </form>
           </div>
         ) : (
           <>
             {/* Desktop Menu */}
-            <div className="hidden md:flex space-x-6 font-semibold text-white relative">
-              {menus.map((item, idx) => (
+            <div className="hidden md:flex space-x-6 text-white font-semibold">
+              {menus.map((m, i) => (
                 <div
-                  key={idx}
-                  className="relative group"
-                  onMouseEnter={() => setDesktopHover(idx)}
+                  key={i}
+                  className="relative"
+                  onMouseEnter={() => setDesktopHover(i)}
                   onMouseLeave={() => setDesktopHover(null)}
                 >
                   <div
+                    className="px-3 py-2 hover:text-green-400 cursor-pointer"
                     onClick={() =>
-                      !item.children?.length && handleMenuClick(item)
+                      !m.children?.length && navigate(`/${lang}${m.url}`)
                     }
-                    className="flex items-center px-3 py-2 hover:text-green-400 cursor-pointer"
                   >
-                    {item.title}
-                    {item.children?.length > 0 && (
-                      <ChevronDown size={16} className="ml-1" />
+                    {m.title}
+                    {m.children?.length > 0 && (
+                      <ChevronDown size={14} className="inline ml-1" />
                     )}
                   </div>
 
-                  {item.children?.length > 0 && desktopHover === idx && (
-                    <div className="absolute top-full left-0 mt-1">
-                      {renderMenu(item.children)}
+                  {m.children?.length > 0 && desktopHover === i && (
+                    <div className="absolute left-0 top-full mt-1">
+                      {renderMenu(m.children)}
                     </div>
                   )}
                 </div>
               ))}
             </div>
 
-            {/* Search + Mobile Toggle */}
+            {/* Search + Language + Mobile */}
             <div className="flex items-center space-x-4">
-              <button
+              {/* 🌐 Language Switch */}
+              <div className="flex space-x-1">
+                <button
+                  className={`px-2 py-1 rounded ${
+                    lang === "mm"
+                      ? "bg-green-500 text-white"
+                      : "bg-blue-900 text-white"
+                  }`}
+                  onClick={() => handleLangChange("mm")}
+                >
+                  MM
+                </button>
+
+                <button
+                  className={`px-2 py-1 rounded ${
+                    lang === "en"
+                      ? "bg-green-500 text-white"
+                      : "bg-blue-900 text-white"
+                  }`}
+                  onClick={() => handleLangChange("en")}
+                >
+                  EN
+                </button>
+              </div>
+
+              <Search
+                className="text-white cursor-pointer"
                 onClick={() => setSearchOpen(true)}
-                className="text-white hover:text-yellow-300"
-              >
-                <Search size={22} />
-              </button>
+              />
+
               <div className="md:hidden">
                 <button onClick={() => setOpen(!open)}>
                   {open ? <X size={28} /> : <Menu size={28} />}
@@ -204,15 +243,35 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {!searchOpen && open && (
-        <div className="md:hidden bg-white border-t shadow px-4 py-4">
-          {menus.map((item) => (
-            <div key={item.id} className="mb-2">
-              {renderMenu([item], 0, true)}
+        <div className="md:hidden bg-white px-4 py-4">
+          {menus.map((m) => (
+            <div key={m.id} className="mb-2">
+              {renderMenu([m], 0, true)}
             </div>
           ))}
+
+          {/* Mobile Lang */}
+          <div className="mt-3 flex space-x-2">
+            <button
+              className={`px-3 py-2 rounded ${
+                lang === "mm" ? "bg-green-600 text-white" : "bg-gray-200"
+              }`}
+              onClick={() => handleLangChange("mm")}
+            >
+              MM
+            </button>
+
+            <button
+              className={`px-3 py-2 rounded ${
+                lang === "en" ? "bg-green-600 text-white" : "bg-gray-200"
+              }`}
+              onClick={() => handleLangChange("en")}
+            >
+              EN
+            </button>
+          </div>
         </div>
       )}
     </nav>
   );
 }
-

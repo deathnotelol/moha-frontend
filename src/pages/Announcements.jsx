@@ -81,7 +81,7 @@ const fetchPosts = async (pageNum = 1) => {
               <div
                 key={post.id}
                 className="bg-white rounded-2xl shadow hover:shadow-lg transition cursor-pointer overflow-hidden"
-                onClick={() => navigate(`/posts/${post.id}`)}
+                onClick={() => navigate(`/mm/posts/${post.uuid}`)}
               >
                 {images.length > 0 && (
                   <img

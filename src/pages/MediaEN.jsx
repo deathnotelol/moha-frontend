@@ -4,57 +4,46 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-const Media = () => {
+const MediaEN = () => {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const navigate = useNavigate();
 
-  // fetch posts with pagination
-const fetchPosts = async (pageNum = 1) => {
-  try {
-    const response = await api.get(`/posts?page=${pageNum}&category_id=1`);
-    setPosts(response.data.data);
-    setLastPage(response.data.last_page);
-  } catch (err) {
-    console.log(err);
-  }
-};
+  // Load posts
+  const fetchPosts = async (pageNum = 1) => {
+    try {
+      const res = await api.get(`/en/posts?page=${pageNum}&category_id=1`);
+      setPosts(res.data.data || []);
+      setLastPage(res.data.last_page || 1);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     fetchPosts(page);
   }, [page]);
 
-  // truncate text
-  const truncateText = (text, max) => {
-    return text?.length > max ? text.slice(0, max) + "..." : text;
-  };
+  // Helpers
+  const truncateText = (text, max) =>
+    text?.length > max ? text.slice(0, max) + "..." : text;
 
-  // strip <img> tags from HTML
-  const stripImages = (html) => {
-    if (!html) return "";
-    return html.replace(/<img[^>]*>/gi, "");
-  };
+  const stripImages = (html) =>
+    html ? html.replace(/<img[^>]*>/gi, "") : "";
 
-  // format date: 13-02-2018
   const formatDate = (dateString) => {
     const d = new Date(dateString);
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
+    return `${String(d.getDate()).padStart(2, "0")}-${String(
+      d.getMonth() + 1
+    ).padStart(2, "0")}-${d.getFullYear()}`;
   };
 
-  // generate page numbers (active page +/- 3)
   const getPageNumbers = () => {
     const delta = 3;
-    let start = Math.max(1, page - delta);
-    let end = Math.min(lastPage, page + delta);
-    const pages = [];
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-    return pages;
+    const start = Math.max(1, page - delta);
+    const end = Math.min(lastPage, page + delta);
+    return [...Array(end - start + 1)].map((_, i) => start + i);
   };
 
   const pageNumbers = getPageNumbers();
@@ -62,26 +51,30 @@ const fetchPosts = async (pageNum = 1) => {
   return (
     <div>
       <Navbar />
+
       <div className="max-w-7xl mx-auto p-6 mt-5">
         <h2
           className="text-4xl font-extrabold animate-gradient 
           bg-gradient-to-r from-blue-500 via-yellow-400 to-green-500 bg-[length:200%_200%] drop-shadow-lg
           bg-clip-text text-transparent py-3 my-16 text-center"
         >
-          ဝန်ကြီးဌာနသတင်းများ
+          Ministry News
         </h2>
+
         {posts.length === 0 && (
           <p className="text-center">No posts available</p>
         )}
 
+        {/* POSTS GRID */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {posts.map((post) => {
             const images = Array.isArray(post.images) ? post.images : [];
+
             return (
               <div
                 key={post.id}
                 className="bg-white rounded-2xl shadow hover:shadow-lg transition cursor-pointer overflow-hidden"
-                onClick={() => navigate(`/posts/${post.id}`)}
+                onClick={() => navigate(`/en/posts/${post.uuid}`)}
               >
                 {images.length > 0 && (
                   <img
@@ -90,15 +83,20 @@ const fetchPosts = async (pageNum = 1) => {
                     className="w-full h-48 object-cover"
                   />
                 )}
+
                 <div className="p-4">
                   <h2 className="text-xl font-bold mb-6">{post.title}</h2>
+
                   <h3 className="text-sm text-blue-700 font-bold mb-3">
                     Created at: {formatDate(post.published_at)}
                   </h3>
+
                   <p
                     className="text-gray-600"
                     dangerouslySetInnerHTML={{
-                      __html: stripImages(truncateText(post.fulltext, 200)),
+                      __html: stripImages(
+                        truncateText(post.fulltext, 200)
+                      ),
                     }}
                   />
                 </div>
@@ -154,9 +152,10 @@ const fetchPosts = async (pageNum = 1) => {
           </button>
         </div>
       </div>
+
       <Footer />
     </div>
   );
 };
 
-export default Media;
+export default MediaEN;

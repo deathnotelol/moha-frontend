@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import api from "../api/axios";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 export default function Features() {
   const [announcements, setAnnouncements] = useState([]);
   const [videos, setVideos] = useState([]);
   const [activeVideo, setActiveVideo] = useState(null);
+  const location = useLocation();
+  const isEnglish = location.pathname.startsWith("/en");
 
   useEffect(() => {
     fetchPostsByCategory(5);
@@ -73,7 +76,7 @@ export default function Features() {
                 bg-gradient-to-r from-blue-500 via-yellow-400 to-green-500 bg-[length:200%_200%] drop-shadow-lg
                 bg-clip-text text-transparent py-3 mb-5 text-center"
               >
-                ထုတ်ပြန်ကြေငြာချက်များ
+                {isEnglish ? "Announcements" : "ထုတ်ပြန်ကြေငြာချက်များ"}
               </h3>
 
               <ul className="space-y-4">
@@ -91,7 +94,7 @@ export default function Features() {
                         />
                       )}
                       <Link
-                        to={`/posts/${post.id}`}
+                        to={`/mm/posts/${post.uuid}`}
                         className="text-gray-800 hover:text-blue-600 font-medium line-clamp-1"
                       >
                         {post.title}
@@ -107,10 +110,11 @@ export default function Features() {
 
             <div className="mt-4 text-center">
               <Link
-                to="/announcments"
+                to="/mm/announcments"
                 className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-full transition"
               >
-                View More
+                {isEnglish ? "View More" : "အသေစိတ်ကြည့်ရှုရန်"}
+                
               </Link>
             </div>
           </div>
@@ -123,7 +127,7 @@ export default function Features() {
                 bg-gradient-to-r from-blue-500 via-yellow-400 to-green-500 bg-[length:200%_200%] drop-shadow-lg
                 bg-clip-text text-transparent py-3 mb-5 text-center"
               >
-                ဗွီဒီယိုမှတ်တမ်းများ
+                {isEnglish ? "Videos Record" : "ဗွီဒီယိုမှတ်တမ်းများ"}
               </h3>
 
               <div className="flex flex-col gap-6">
@@ -176,10 +180,10 @@ export default function Features() {
 
             <div className="mt-6 text-center">
               <Link
-                to="/videos"
+                to="/mm/videos"
                 className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-full transition"
               >
-                View More
+                {isEnglish ? "View More" : "အသေစိတ်ကြည့်ရှုရန်"}
               </Link>
             </div>
           </div>

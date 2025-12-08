@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import api from "../api/axios";
 import { Link } from "react-router-dom";
 import { BookOpen, FileText, Scale } from "lucide-react"; // Icon တွေ import
+import { useLocation } from "react-router-dom";
 
 export default function FeaturesBotton() {
   const [newsletters, setNewsletters] = useState([]);
   const [tenders, setTenders] = useState([]);
   const [lawPost, setLawPost] = useState(null);
+  const location = useLocation();
+  const isEnglish = location.pathname.startsWith("/en");
 
   useEffect(() => {
     fetchPostsByCategory(6, setNewsletters); // newsletters
@@ -27,7 +30,7 @@ export default function FeaturesBotton() {
 
   const fetchLawPost = async () => {
     try {
-      const res = await api.get(`/posts/14051`);
+      const res = await api.get(`/posts/5e656d02-ca82-11f0-9d87-00155d100213`);
       setLawPost(res.data || null);
     } catch (err) {
       console.error(err);
@@ -60,14 +63,14 @@ export default function FeaturesBotton() {
             <div className="flex flex-col items-center mb-6">
               <BookOpen className="w-10 h-10 text-blue-600 mb-2" />
               <h3 className="text-2xl font-extrabold text-blue-600">
-                ပြည်ထဲရေးသတင်းလွှာ
+                {isEnglish ? "MOHA News Papers" : "ပြည်ထဲရေးသတင်းလွှာ"} 
               </h3>
             </div>
             <ul className="space-y-4">
               {newsletters.map((post) => (
                 <li key={post.id} className="border-b pb-2">
                   <Link
-                    to={`/posts/${post.id}`}
+                    to={`/mm/posts/${post.uuid}`}
                     className="text-gray-800 hover:text-blue-500 font-medium line-clamp-1"
                   >
                     {post.title}
@@ -80,10 +83,10 @@ export default function FeaturesBotton() {
             </ul>
             <div className="mt-4 text-center">
               <Link
-                to="/newsletters"
+                to="/mm/newsletters"
                 className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-full transition"
               >
-                Read More
+                {isEnglish ? "Read More" : "အသေးစိတ်ကြည့်ရှုရန်"}
               </Link>
             </div>
           </div>
@@ -93,14 +96,14 @@ export default function FeaturesBotton() {
             <div className="flex flex-col items-center mb-6">
               <FileText className="w-10 h-10 text-green-600 mb-2" />
               <h3 className="text-2xl font-extrabold text-green-600">
-                တင်ဒါထုတ်ပြန်ချက်များ
+                { isEnglish ? "Tender Announcements" : "တင်ဒါထုတ်ပြန်ချက်များ"}
               </h3>
             </div>
             <ul className="space-y-4">
               {tenders.map((post) => (
                 <li key={post.id} className="border-b pb-2">
                   <Link
-                    to={`/posts/${post.id}`}
+                    to={`/mm/posts/${post.uuid}`}
                     className="text-gray-800 hover:text-green-600 font-medium line-clamp-1"
                   >
                     {post.title}
@@ -113,10 +116,10 @@ export default function FeaturesBotton() {
             </ul>
             <div className="mt-4 text-center">
               <Link
-                to="/tenders"
+                to="/mm/tenders"
                 className="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded-full transition"
               >
-                Read More
+                {isEnglish ? "Read More" : "အသေးစိတ်ကြည့်ရှုရန်"}
               </Link>
             </div>
           </div>
@@ -126,7 +129,7 @@ export default function FeaturesBotton() {
             <div className="flex flex-col items-center mb-6">
               <Scale className="w-10 h-10 text-blue-600 mb-2" />
               <h3 className="text-2xl font-extrabold text-blue-600">
-                ဥပဒေကဏ္ဍ
+                { isEnglish ? "Law Section": "ဥပဒေကဏ္ဍ"}
               </h3>
             </div>
             <div className="flex flex-col items-center text-center">
@@ -136,16 +139,15 @@ export default function FeaturesBotton() {
                 className="w-56 h-56 mb-4"
               />
               <p className="text-gray-700 leading-relaxed">
-                ဥပဒေများ၊ နည်းဥပဒေများ၊ အမိန့်များနှင့် စည်းမျဉ်းစည်းကမ်းများကို
-                စုဆောင်းဖော်ပြထားသော ဥပဒေကဏ္ဍ ဖြစ်ပါသည်။
+                { isEnglish ? "This section provides a compilation of laws, bylaws, orders, and regulations." : "ဥပဒေများ၊ နည်းဥပဒေများ၊ အမိန့်များနှင့် စည်းမျဉ်းစည်းကမ်းများကိုစုဆောင်းဖော်ပြထားသော ဥပဒေကဏ္ဍ ဖြစ်ပါသည်။"}
               </p>
             </div>
             <div className="mt-6 text-center">
               <Link
-                to="/posts/14051"
+                to="/mm/posts/5e656d02-ca82-11f0-9d87-00155d100213"
                 className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-full transition"
               >
-                Read More
+                {isEnglish ? "Read More" : "အသေးစိတ်ကြည့်ရှုရန်"}
               </Link>
             </div>
           </div>
@@ -154,3 +156,4 @@ export default function FeaturesBotton() {
     </section>
   );
 }
+

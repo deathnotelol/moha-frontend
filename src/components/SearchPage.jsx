@@ -144,7 +144,7 @@ export default function SearchPage() {
               <div
                 key={post.id}
                 className="bg-white rounded-lg shadow-md hover:shadow-xl transition p-4 flex flex-col cursor-pointer"
-                onClick={() => navigate(`/posts/${post.id}`)}
+                onClick={() => navigate(`/mm/posts/${post.uuid}`)}
               >
                 {post.all_images?.length > 0 && (
                   <img

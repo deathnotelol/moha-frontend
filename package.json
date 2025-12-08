@@ -24,6 +24,7 @@
     "lucide-react": "^0.544.0",
     "popmotion": "^11.0.5",
     "react": "^19.1.1",
+    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^19.1.1",
     "react-player": "^3.3.3",
     "react-quill": "^2.0.0-beta.3",

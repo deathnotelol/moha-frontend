@@ -13,7 +13,8 @@
 //         parent_id: parent,
 //         order: n.order ?? idx,
 //         active: !!n.active,
-//         post_id: n.post_id ?? null,
+//         post_uuid: n.post_uuid ?? null,
+//         post_title: n.post_title ?? null,
 //         level,
 //       });
 //       if (n.children && n.children.length) rec(n.children, n.id, level + 1);
@@ -24,66 +25,57 @@
 // }
 
 // export default function ManageMenus() {
+//   const [locale, setLocale] = useState("mm");
 //   const [tree, setTree] = useState([]);
 //   const [rows, setRows] = useState([]);
 //   const [loading, setLoading] = useState(false);
 
-//   // Posts for modal
+//   // posts
 //   const [posts, setPosts] = useState([]);
 //   const [search, setSearch] = useState("");
 //   const [page, setPage] = useState(1);
 //   const [lastPage, setLastPage] = useState(1);
-
-//   // categories
 //   const [categories, setCategories] = useState([]);
 //   const [categoryId, setCategoryId] = useState("");
 
-//   // modal state
 //   const [postModalOpen, setPostModalOpen] = useState(false);
 
-//   // form state
-//   const [editing, setEditing] = useState(null);
+//   // Form state
+//   const [editingItem, setEditingItem] = useState(null); // null: add new, else edit
 //   const [title, setTitle] = useState("");
 //   const [url, setUrl] = useState("");
 //   const [parentId, setParentId] = useState(null);
 //   const [active, setActive] = useState(true);
-//   const [postId, setPostId] = useState(null);
+//   const [postUUID, setPostUUID] = useState(null);
 //   const [postTitle, setPostTitle] = useState("");
 
-//   useEffect(() => {
-//     async function fetchCategories() {
-//       try {
-//         const res = await api.get("/categories");
-//         setCategories(res.data);
-//       } catch (err) {
-//         console.error("Failed to load categories", err);
-//       }
-//     }
-//     fetchCategories();
-//   }, []);
+//   // Add modal state
+//   const [modalOpen, setModalOpen] = useState(false);
 
+//   const apiBase = locale === "en" ? "/en" : "";
+
+//   // Fetch menus
 //   useEffect(() => {
 //     fetchMenus();
-//   }, []);
-
-//   useEffect(() => {
-//     if (postModalOpen) fetchPosts();
-//   }, [page, search, categoryId, postModalOpen]);
+//   }, [locale]);
 
 //   async function fetchMenus() {
 //     setLoading(true);
 //     try {
-//       const res = await api.get("/menus");
+//       const res = await api.get(`${apiBase}/menus`);
 //       setTree(res.data);
 //       setRows(flattenTree(res.data));
+//     } catch (err) {
+//       console.error(err);
 //     } finally {
 //       setLoading(false);
 //     }
 //   }
 
+//   // Fetch posts
 //   async function fetchPosts() {
 //     try {
-//       const res = await api.get("/posts", {
+//       const res = await api.get(locale === "en" ? "/en/posts" : "/posts", {
 //         params: { page, search, category_id: categoryId || undefined },
 //       });
 //       setPosts(res.data.data);
@@ -93,24 +85,36 @@
 //     }
 //   }
 
+//   useEffect(() => {
+//     if (postModalOpen) fetchPosts();
+//   }, [page, search, categoryId, postModalOpen, locale]);
+
+//   // Form handlers
 //   function openAdd(parent = null) {
-//     setEditing(null);
-//     setTitle("");
-//     setUrl("");
+//     setEditingItem(null);
+//     resetForm();
 //     setParentId(parent);
-//     setActive(true);
-//     setPostId(null);
-//     setPostTitle("");
+//     setModalOpen(true); // ✅ modal open
 //   }
 
 //   function openEdit(item) {
-//     setEditing(item.id);
+//     setEditingItem(item);
 //     setTitle(item.title);
 //     setUrl(item.url || "");
 //     setParentId(item.parent_id || null);
 //     setActive(item.active);
-//     setPostId(item.post_id || null);
-//     setPostTitle(rows.find((r) => r.id === item.id)?.post_title || "");
+//     setPostUUID(item.post_uuid || null);
+//     setPostTitle(item.post_title || "");
+//     setModalOpen(true); // ✅ modal open
+//   }
+
+//   function resetForm() {
+//     setTitle("");
+//     setUrl("");
+//     setParentId(null);
+//     setActive(true);
+//     setPostUUID(null);
+//     setPostTitle("");
 //   }
 
 //   async function handleSaveNewOrEdit(e) {
@@ -118,58 +122,39 @@
 //     try {
 //       const payload = {
 //         title,
-//         url,
+//         url: url || null,
 //         parent_id: parentId,
 //         active,
-//         post_id: postId,
+//         post_uuid: postUUID,
 //       };
-//       if (editing) {
-//         await api.put(`/menus/${editing}`, payload);
+//       if (editingItem) {
+//         await api.put(`${apiBase}/menus/${editingItem.id}`, payload);
 //       } else {
-//         await api.post("/menus", payload);
+//         await api.post(`${apiBase}/menus`, payload);
 //       }
 //       await fetchMenus();
-//       setEditing(null);
-//       resetForm();
+//       closeForm();
 //     } catch (err) {
-//       console.error(err);
-//       alert("Error saving menu");
+//       console.error("Update failed:", err.response?.data);
+//       alert("Error saving");
 //     }
+//   }
+
+//   // close modal
+//   function closeForm() {
+//     resetForm();
+//     setEditingItem(null);
+//     setParentId(null);
+//     setModalOpen(false);
 //   }
 
 //   async function handleDelete(id) {
-//     if (!window.confirm("Are you sure to delete this menu?")) return;
+//     if (!window.confirm("Are you sure to delete?")) return;
 //     try {
-//       await api.delete(`/menus/${id}`);
-//       await fetchMenus();
+//       await api.delete(`${apiBase}/menus/${id}`);
+//       fetchMenus();
 //     } catch (err) {
 //       console.error(err);
-//       alert("Delete failed");
-//     }
-//   }
-
-//   function resetForm() {
-//     setTitle("");
-//     setUrl("");
-//     setParentId(null);
-//     setPostId(null);
-//     setPostTitle("");
-//   }
-
-//   async function handleSaveAll() {
-//     const items = rows.map((r) => ({
-//       id: r.id,
-//       parent_id: r.parent_id ?? null,
-//       order: r.order ?? 0,
-//       post_id: r.post_id ?? null,
-//     }));
-//     try {
-//       await api.post("/menus/bulk-update", { items });
-//       await fetchMenus();
-//       alert("Saved");
-//     } catch (err) {
-//       console.error(err);
-//       alert("Save failed");
 //     }
 //   }
 
@@ -178,163 +163,143 @@
 //       <Sidebar />
 //       <div className="flex-1 p-6 bg-gray-100 min-h-screen">
 //         <h1 className="text-2xl font-bold mb-4">Manage Menus</h1>
+//         {/* Locale & Actions */}
 //         <div className="mb-4 flex gap-2">
 //           <button
+//             onClick={() => setLocale("mm")}
+//             className={`px-3 py-2 rounded ${
+//               locale === "mm" ? "bg-blue-600 text-white" : "bg-gray-300"
+//             }`}
+//           >
+//             မြန်မာ
+//           </button>
+//           <button
+//             onClick={() => setLocale("en")}
+//             className={`px-3 py-2 rounded ${
+//               locale === "en" ? "bg-blue-600 text-white" : "bg-gray-300"
+//             }`}
+//           >
+//             English
+//           </button>
+//           <button
 //             onClick={() => openAdd(null)}
-//             className="bg-blue-600 text-white px-3 py-2 rounded"
+//             className="px-4 py-2 bg-blue-600 text-white rounded"
 //           >
-//             Add Top Menu
-//           </button>
-//           <button
-//             onClick={handleSaveAll}
-//             className="bg-green-600 text-white px-3 py-2 rounded"
-//           >
-//             Save All
-//           </button>
-//           <button
-//             onClick={fetchMenus}
-//             className="bg-gray-600 text-white px-3 py-2 rounded"
-//           >
-//             Reload
+//             Add New Menu
 //           </button>
 //         </div>
-
+//         {/* Menu Table */}
 //         {loading ? (
 //           <p>Loading...</p>
 //         ) : (
-//           <div className="bg-white p-4 rounded shadow overflow-x-auto">
-//             <table className="w-full table-auto">
-//               <thead>
-//                 <tr>
-//                   <th className="text-left">Title</th>
-//                   <th>Parent</th>
-//                   <th>Order</th>
-//                   <th>Active</th>
-//                   <th>Post</th>
-//                   <th>Actions</th>
+//           <table className="w-full bg-white shadow rounded">
+//             <thead className="bg-gray-200">
+//               <tr>
+//                 <th className="p-2">Title</th>
+//                 <th>URL</th>
+//                 <th>Post</th>
+//                 <th>Order</th>
+//                 <th>Actions</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {rows.map((r) => (
+//                 <tr key={r.id} className="border-b">
+//                   <td className="p-2">
+//                     {"— ".repeat(r.level - 1)}
+//                     {r.title}
+//                   </td>
+//                   <td>{r.url}</td>
+//                   <td>{r.post_title || "-"}</td>
+//                   <td>{r.order}</td>
+//                   <td className="flex gap-2 p-2">
+//                     <button
+//                       onClick={() => openEdit(r)}
+//                       className="bg-blue-600 text-white rounded px-4 py-2"
+//                     >
+//                       Edit
+//                     </button>
+//                     <button
+//                       onClick={() => handleDelete(r.id)}
+//                       className="bg-red-600 text-white rounded px-4 py-2"
+//                     >
+//                       Delete
+//                     </button>
+//                     <button
+//                       onClick={() => openAdd(r.id)}
+//                       className="bg-green-600 text-white rounded px-4 py-2"
+//                     >
+//                       Add Child
+//                     </button>
+//                   </td>
 //                 </tr>
-//               </thead>
-//               <tbody>
-//                 {rows.map((r) => (
-//                   <tr key={r.id} className="border-t">
-//                     <td className="py-2">{r.title}</td>
-//                     <td className="text-center">{r.parent_id || "-"}</td>
-//                     <td className="text-center">{r.order}</td>
-//                     <td className="text-center">{r.active ? "Yes" : "No"}</td>
-//                     <td className="text-center">
-//                       {r.post_id
-//                         ? posts.find((p) => p.id === r.post_id)?.title
-//                         : "-"}
-//                     </td>
-//                     <td className="text-center">
-//                       <button
-//                         onClick={() => openAdd(r.id)}
-//                         className="mr-2 bg-indigo-500 text-white px-2 py-1 rounded"
-//                       >
-//                         Add child
-//                       </button>
-//                       <button
-//                         onClick={() => openEdit(r)}
-//                         className="mr-2 bg-yellow-500 px-2 py-1 rounded"
-//                       >
-//                         Edit
-//                       </button>
-//                       <button
-//                         onClick={() => handleDelete(r.id)}
-//                         className="bg-red-600 text-white px-2 py-1 rounded"
-//                       >
-//                         Delete
-//                       </button>
-//                     </td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-//           </div>
+//               ))}
+//             </tbody>
+//           </table>
 //         )}
 
-//         {/* Form */}
-//         <div className="mt-6 bg-white p-4 rounded shadow">
-//           <h2 className="font-semibold mb-2">
-//             {editing ? "Edit Menu" : "Add Menu"}
-//           </h2>
-//           <form
-//             onSubmit={handleSaveNewOrEdit}
-//             className="grid grid-cols-2 gap-3"
-//           >
-//             <div>
-//               <label>Title</label>
-//               <input
-//                 className="border p-2 w-full"
-//                 value={title}
-//                 onChange={(e) => setTitle(e.target.value)}
-//                 required
-//               />
-//             </div>
-//             <div>
-//               <label>URL</label>
-//               <input
-//                 className="border p-2 w-full"
-//                 value={url}
-//                 onChange={(e) => setUrl(e.target.value)}
-//                 placeholder="/about"
-//               />
-//             </div>
-//             <div>
-//               <label>Active</label>
-//               <select
-//                 className="border p-2 w-full"
-//                 value={active ? "1" : "0"}
-//                 onChange={(e) => setActive(e.target.value === "1")}
+//         {modalOpen && (
+//           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+//             <div className="bg-white p-6 rounded shadow-lg w-[600px] max-h-[90vh] overflow-y-auto">
+//               <h2 className="text-xl mb-3">
+//                 {editingItem ? "Edit Menu" : "Add Menu"}
+//               </h2>
+//               <form
+//                 onSubmit={handleSaveNewOrEdit}
+//                 className="flex flex-col gap-3"
 //               >
-//                 <option value="1">Active</option>
-//                 <option value="0">Inactive</option>
-//               </select>
-//             </div>
-//             <div>
-//               <label>Link Post</label>
-//               <div className="flex items-center gap-2">
 //                 <input
-//                   className="border p-2 flex-1"
-//                   value={postTitle}
-//                   readOnly
-//                   placeholder="No post linked"
+//                   className="border p-2 w-full"
+//                   placeholder="Menu title"
+//                   value={title}
+//                   onChange={(e) => setTitle(e.target.value)}
+//                   required
 //                 />
-//                 <button
-//                   type="button"
-//                   onClick={() => setPostModalOpen(true)}
-//                   className="bg-blue-600 text-white px-3 py-2 rounded"
-//                 >
-//                   Select
-//                 </button>
-//               </div>
+//                 <div className="flex gap-2">
+//                   <input
+//                     className="border p-2 flex-1"
+//                     placeholder="URL (optional)"
+//                     value={url}
+//                     onChange={(e) => setUrl(e.target.value)}
+//                   />
+//                   <button
+//                     type="button"
+//                     className="px-3 py-2 bg-gray-300"
+//                     onClick={() => setPostModalOpen(true)}
+//                   >
+//                     Choose Post
+//                   </button>
+//                 </div>
+//                 {postUUID && (
+//                   <div className="text-sm bg-green-100 p-2 rounded">
+//                     Selected Post: {postTitle}
+//                   </div>
+//                 )}
+//                 <div className="flex justify-end gap-2 mt-4">
+//                   <button
+//                     type="submit"
+//                     className="px-4 py-2 bg-blue-600 text-white rounded"
+//                   >
+//                     Save
+//                   </button>
+//                   <button
+//                     type="button"
+//                     onClick={closeForm}
+//                     className="px-4 py-2 border rounded"
+//                   >
+//                     Cancel
+//                   </button>
+//                 </div>
+//               </form>
 //             </div>
-//             <div className="col-span-2 flex gap-2 mt-2">
-//               <button
-//                 className="bg-blue-600 text-white px-4 py-2 rounded"
-//                 type="submit"
-//               >
-//                 {editing ? "Update" : "Create"}
-//               </button>
-//               <button
-//                 type="button"
-//                 onClick={() => {
-//                   setEditing(null);
-//                   resetForm();
-//                 }}
-//                 className="px-4 py-2 border rounded"
-//               >
-//                 Cancel
-//               </button>
-//             </div>
-//           </form>
-//         </div>
-
-//         {/* Modal for posts */}
+//           </div>
+//         )}
+//         {/* Post Modal */}
 //         {postModalOpen && (
 //           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-//             <div className="bg-white p-6 rounded shadow-lg w-[700px] max-h-[80vh] overflow-y-auto">
+//             <div className="bg-white p-6 rounded shadow-lg w-[900px] max-h-[90vh] overflow-y-auto">
 //               <h3 className="text-xl font-bold mb-4">Select Post</h3>
+
 //               <div className="flex gap-2 mb-3">
 //                 <input
 //                   type="text"
@@ -347,11 +312,11 @@
 //                   }}
 //                 />
 //                 <select
-//                   className="border p-2 w-full mb-3"
+//                   className="border p-2"
 //                   value={categoryId}
 //                   onChange={(e) => {
 //                     setCategoryId(e.target.value);
-//                     setPage(1); // filter ပြောင်းတာနဲ့ page ကို 1 သို့ reset
+//                     setPage(1);
 //                   }}
 //                 >
 //                   <option value="">All Categories</option>
@@ -362,6 +327,7 @@
 //                   ))}
 //                 </select>
 //               </div>
+
 //               <table className="w-full table-auto mb-4">
 //                 <thead>
 //                   <tr>
@@ -377,7 +343,7 @@
 //                         <button
 //                           className="bg-green-600 text-white px-2 py-1 rounded"
 //                           onClick={() => {
-//                             setPostId(p.id);
+//                             setPostUUID(p.uuid);
 //                             setPostTitle(p.title);
 //                             setPostModalOpen(false);
 //                           }}
@@ -389,26 +355,27 @@
 //                   ))}
 //                 </tbody>
 //               </table>
-//               {/* Pagination */}
+
 //               <div className="flex justify-between items-center">
 //                 <button
 //                   disabled={page <= 1}
 //                   onClick={() => setPage((p) => p - 1)}
-//                   className="px-3 py-1 border rounded"
+//                   className="px-3 py-1 border rounded disabled:opacity-50"
 //                 >
 //                   Prev
 //                 </button>
 //                 <span>
-//                   Page {page} of {lastPage}
+//                   Page {page} / {lastPage}
 //                 </span>
 //                 <button
 //                   disabled={page >= lastPage}
 //                   onClick={() => setPage((p) => p + 1)}
-//                   className="px-3 py-1 border rounded"
+//                   className="px-3 py-1 border rounded disabled:opacity-50"
 //                 >
 //                   Next
 //                 </button>
 //               </div>
+
 //               <div className="mt-4 text-right">
 //                 <button
 //                   onClick={() => setPostModalOpen(false)}
@@ -425,11 +392,12 @@
 //   );
 // }
 
-
 import React, { useEffect, useState } from "react";
 import api from "../../api/axios";
 import Sidebar from "../../components/Sidebar";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
+// Flatten tree for table display
 function flattenTree(tree) {
   const rows = [];
   function rec(nodes, parent = null, level = 1) {
@@ -441,8 +409,10 @@ function flattenTree(tree) {
         parent_id: parent,
         order: n.order ?? idx,
         active: !!n.active,
-        post_id: n.post_id ?? null,
+        post_uuid: n.post_uuid ?? null,
+        post_title: n.post_title ?? null,
         level,
+        children: n.children ?? [],
       });
       if (n.children && n.children.length) rec(n.children, n.id, level + 1);
     });
@@ -452,58 +422,38 @@ function flattenTree(tree) {
 }
 
 export default function ManageMenus() {
-  const [locale, setLocale] = useState("mm"); // "mm" or "en"
-
+  const [locale, setLocale] = useState("mm");
   const [tree, setTree] = useState([]);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Posts for modal
+  // posts
   const [posts, setPosts] = useState([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
-
-  // categories
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
 
-  // modal state
   const [postModalOpen, setPostModalOpen] = useState(false);
 
-  // form state
-  const [editing, setEditing] = useState(null);
+  // Form state
+  const [editingItem, setEditingItem] = useState(null); // null: add new, else edit
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [parentId, setParentId] = useState(null);
   const [active, setActive] = useState(true);
-  const [postId, setPostId] = useState(null);
+  const [postUUID, setPostUUID] = useState(null);
   const [postTitle, setPostTitle] = useState("");
 
-  const apiBase = locale === "en" ? "/en" : "";
+  const [modalOpen, setModalOpen] = useState(false);
 
-  // Fetch categories
-  useEffect(() => {
-    async function fetchCategories() {
-      try {
-        const res = await api.get(`${apiBase}/categories`);
-        setCategories(res.data);
-      } catch (err) {
-        console.error("Failed to load categories", err);
-      }
-    }
-    fetchCategories();
-  }, [locale]);
+  const apiBase = locale === "en" ? "/en" : "";
 
   // Fetch menus
   useEffect(() => {
     fetchMenus();
   }, [locale]);
-
-  // Fetch posts when modal opens
-  useEffect(() => {
-    if (postModalOpen) fetchPosts();
-  }, [page, search, categoryId, postModalOpen, locale]);
 
   async function fetchMenus() {
     setLoading(true);
@@ -518,10 +468,10 @@ export default function ManageMenus() {
     }
   }
 
+  // Fetch posts
   async function fetchPosts() {
     try {
-      const url = locale === "en" ? "/en/posts" : "/posts";
-      const res = await api.get(url, {
+      const res = await api.get(locale === "en" ? "/en/posts" : "/posts", {
         params: { page, search, category_id: categoryId || undefined },
       });
       setPosts(res.data.data);
@@ -531,77 +481,126 @@ export default function ManageMenus() {
     }
   }
 
+  useEffect(() => {
+    if (postModalOpen) fetchPosts();
+  }, [page, search, categoryId, postModalOpen, locale]);
+
+  // Open Add/Edit Modal
   function openAdd(parent = null) {
-    setEditing(null);
-    setTitle("");
-    setUrl("");
+    setEditingItem(null);
+    resetForm();
     setParentId(parent);
-    setActive(true);
-    setPostId(null);
-    setPostTitle("");
+    setModalOpen(true);
   }
 
   function openEdit(item) {
-    setEditing(item.id);
+    setEditingItem(item);
     setTitle(item.title);
     setUrl(item.url || "");
     setParentId(item.parent_id || null);
     setActive(item.active);
-    setPostId(item.post_id || null);
-    setPostTitle(rows.find((r) => r.id === item.id)?.post_title || "");
-  }
-
-  async function handleSaveNewOrEdit(e) {
-    e.preventDefault();
-    try {
-      const payload = { title, url, parent_id: parentId, active, post_id: postId };
-      if (editing) {
-        await api.put(`${apiBase}/menus/${editing}`, payload);
-      } else {
-        await api.post(`${apiBase}/menus`, payload);
-      }
-      await fetchMenus();
-      setEditing(null);
-      resetForm();
-    } catch (err) {
-      console.error(err);
-      alert("Error saving menu");
-    }
-  }
-
-  async function handleDelete(id) {
-    if (!window.confirm("Are you sure to delete this menu?")) return;
-    try {
-      await api.delete(`${apiBase}/menus/${id}`);
-      await fetchMenus();
-    } catch (err) {
-      console.error(err);
-      alert("Delete failed");
-    }
+    setPostUUID(item.post_uuid || null);
+    setPostTitle(item.post_title || "");
+    setModalOpen(true);
   }
 
   function resetForm() {
     setTitle("");
     setUrl("");
     setParentId(null);
-    setPostId(null);
+    setActive(true);
+    setPostUUID(null);
     setPostTitle("");
   }
 
-  async function handleSaveAll() {
-    const items = rows.map((r) => ({
-      id: r.id,
-      parent_id: r.parent_id ?? null,
-      order: r.order ?? 0,
-      post_id: r.post_id ?? null,
-    }));
+  function closeForm() {
+    resetForm();
+    setEditingItem(null);
+    setParentId(null);
+    setModalOpen(false);
+  }
+
+  async function handleSaveNewOrEdit(e) {
+    e.preventDefault();
     try {
-      await api.post(`${apiBase}/menus/bulk-update`, { items });
+      const payload = {
+        title,
+        url: url || null,
+        parent_id: parentId,
+        active,
+        post_uuid: postUUID,
+      };
+      if (editingItem) {
+        await api.put(`${apiBase}/menus/${editingItem.id}`, payload);
+      } else {
+        await api.post(`${apiBase}/menus`, payload);
+      }
       await fetchMenus();
-      alert("Saved");
+      closeForm();
+    } catch (err) {
+      console.error("Update failed:", err.response?.data);
+      alert("Error saving");
+    }
+  }
+
+  async function handleDelete(id) {
+    if (!window.confirm("Are you sure to delete?")) return;
+    try {
+      await api.delete(`${apiBase}/menus/${id}`);
+      fetchMenus();
     } catch (err) {
       console.error(err);
-      alert("Save failed");
+    }
+  }
+
+  // Drag & Drop handlers
+  function handleDragEnd(result) {
+    if (!result.destination) return;
+    const { source, destination, type } = result;
+
+    if (type === "PARENT") {
+      const updated = Array.from(tree);
+      const [removed] = updated.splice(source.index, 1);
+      updated.splice(destination.index, 0, removed);
+      setTree(updated);
+      setRows(flattenTree(updated));
+      saveBulkUpdate(updated);
+    }
+
+    if (type.startsWith("CHILD")) {
+      const parentId = parseInt(type.split("-")[1], 10);
+      const parent = tree.find((p) => p.id === parentId);
+      const updatedChildren = Array.from(parent.children);
+      const [removed] = updatedChildren.splice(source.index, 1);
+      updatedChildren.splice(destination.index, 0, removed);
+
+      const updatedTree = tree.map((p) =>
+        p.id === parentId ? { ...p, children: updatedChildren } : p
+      );
+      setTree(updatedTree);
+      setRows(flattenTree(updatedTree));
+      saveBulkUpdate(updatedTree);
+    }
+  }
+
+  async function saveBulkUpdate(updatedTree) {
+    const items = [];
+    function recurse(nodes, parent = null) {
+      nodes.forEach((n, idx) => {
+        items.push({
+          id: n.id,
+          parent_id: parent,
+          order: idx,
+          post_uuid: n.post_uuid ?? null,
+        });
+        if (n.children && n.children.length) recurse(n.children, n.id);
+      });
+    }
+    recurse(updatedTree);
+    try {
+      await api.post(`${apiBase}/menus/bulk-update`, { items });
+    } catch (err) {
+      console.error(err);
     }
   }
 
@@ -610,189 +609,233 @@ export default function ManageMenus() {
       <Sidebar />
       <div className="flex-1 p-6 bg-gray-100 min-h-screen">
         <h1 className="text-2xl font-bold mb-4">Manage Menus</h1>
-
-        {/* Locale Switch */}
-        <div className="mb-4 flex gap-2">
+        <div className="mb-4 flex gap-2 flex-wrap">
           <button
             onClick={() => setLocale("mm")}
-            className={`px-3 py-2 rounded ${locale === "mm" ? "bg-blue-600 text-white" : "bg-gray-300"}`}
+            className={`px-3 py-2 rounded ${
+              locale === "mm" ? "bg-blue-600 text-white" : "bg-gray-300"
+            }`}
           >
             မြန်မာ
           </button>
           <button
             onClick={() => setLocale("en")}
-            className={`px-3 py-2 rounded ${locale === "en" ? "bg-blue-600 text-white" : "bg-gray-300"}`}
+            className={`px-3 py-2 rounded ${
+              locale === "en" ? "bg-blue-600 text-white" : "bg-gray-300"
+            }`}
           >
             English
           </button>
-
           <button
             onClick={() => openAdd(null)}
-            className="bg-blue-600 text-white px-3 py-2 rounded"
+            className="px-4 py-2 bg-blue-600 text-white rounded"
           >
-            Add Top Menu
-          </button>
-          <button
-            onClick={handleSaveAll}
-            className="bg-green-600 text-white px-3 py-2 rounded"
-          >
-            Save All
-          </button>
-          <button
-            onClick={fetchMenus}
-            className="bg-gray-600 text-white px-3 py-2 rounded"
-          >
-            Reload
+            Add New Menu
           </button>
         </div>
 
-        {/* Menu Table */}
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          <div className="bg-white p-4 rounded shadow overflow-x-auto">
-            <table className="w-full table-auto">
-              <thead>
-                <tr>
-                  <th className="text-left">Title</th>
-                  <th>Parent</th>
-                  <th>Order</th>
-                  <th>Active</th>
-                  <th>Post</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr key={r.id} className="border-t">
-                    <td className="py-2">{r.title}</td>
-                    <td className="text-center">{r.parent_id || "-"}</td>
-                    <td className="text-center">{r.order}</td>
-                    <td className="text-center">{r.active ? "Yes" : "No"}</td>
-                    <td className="text-center">
-                      {r.post_id
-                        ? posts.find((p) => p.id === r.post_id)?.title
-                        : "-"}
-                    </td>
-                    <td className="text-center">
-                      <button
-                        onClick={() => openAdd(r.id)}
-                        className="mr-2 bg-indigo-500 text-white px-2 py-1 rounded"
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="parents" type="PARENT">
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="space-y-2"
+              >
+                {tree.map((parent, pIndex) => (
+                  <Draggable
+                    key={parent.id}
+                    draggableId={parent.id.toString()}
+                    index={pIndex}
+                  >
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className="bg-white shadow rounded"
                       >
-                        Add child
-                      </button>
-                      <button
-                        onClick={() => openEdit(r)}
-                        className="mr-2 bg-yellow-500 px-2 py-1 rounded"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(r.id)}
-                        className="bg-red-600 text-white px-2 py-1 rounded"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
+                        <div
+                          className="flex justify-between items-center p-3 border-b"
+                          {...provided.dragHandleProps}
+                        >
+                          <strong>{parent.title}</strong>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => openEdit(parent)}
+                              className="px-2 py-1 bg-blue-600 text-white rounded text-md"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(parent.id)}
+                              className="px-2 py-1 bg-red-600 text-white rounded text-md"
+                            >
+                              Delete
+                            </button>
+                            <button
+                              onClick={() => openAdd(parent.id)}
+                              className="px-2 py-1 bg-green-600 text-white rounded text-md"
+                            >
+                              Add Child
+                            </button>
+                          </div>
+                        </div>
+
+                        <Droppable
+                          droppableId={`children-${parent.id}`}
+                          type={`CHILD-${parent.id}`}
+                        >
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.droppableProps}
+                              className="ml-6 p-1 space-y-1"
+                            >
+                              {parent.children.map((child, cIndex) => (
+                                <Draggable
+                                  key={child.id}
+                                  draggableId={child.id.toString()}
+                                  index={cIndex}
+                                >
+                                  {(provided, snapshot) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                      className={`p-2 border-l-4 border-blue-300 rounded bg-gray-50 flex justify-between items-center ${
+                                        snapshot.isDragging
+                                          ? "bg-blue-50"
+                                          : "hover:bg-gray-100"
+                                      }`}
+                                    >
+                                      <span className="ml-2">
+                                        {child.title}
+                                      </span>
+                                      <div className="flex gap-1">
+                                        <button
+                                          onClick={() => openEdit(child)}
+                                          className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-500"
+                                        >
+                                          Edit
+                                        </button>
+                                        <button
+                                          onClick={() => handleDelete(child.id)}
+                                          className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-500"
+                                        >
+                                          Delete
+                                        </button>
+                                        <button
+                                          onClick={() => openAdd(child.id)}
+                                          className="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-500"
+                                        >
+                                          Add Child
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
+                                </Draggable>
+                              ))}
+                              {provided.placeholder}
+                            </div>
+                          )}
+                        </Droppable>
+                      </div>
+                    )}
+                  </Draggable>
                 ))}
-              </tbody>
-            </table>
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+
+        {/* Add/Edit Modal */}
+        {modalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-2">
+            <div className="bg-white rounded shadow-lg w-full max-w-lg max-h-[90vh] overflow-y-auto p-4">
+              <h2 className="text-xl mb-3">
+                {editingItem ? "Edit Menu" : "Add Menu"}
+              </h2>
+              <form
+                className="flex flex-col gap-3"
+                onSubmit={handleSaveNewOrEdit}
+              >
+                <input
+                  className="border p-2 w-full"
+                  placeholder="Menu title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+                <div className="flex gap-2">
+                  <input
+                    className="border p-2 flex-1"
+                    placeholder="URL (optional)"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="px-3 py-2 bg-gray-300"
+                    onClick={() => setPostModalOpen(true)}
+                  >
+                    Choose Post
+                  </button>
+                </div>
+                {postUUID && (
+                  <div className="bg-green-100 p-2 rounded text-sm">
+                    Selected Post: {postTitle}
+                  </div>
+                )}
+                <div className="flex justify-end gap-2 mt-4">
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded"
+                  >
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeForm}
+                    className="px-4 py-2 border rounded"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
 
-        {/* Form */}
-        <div className="mt-6 bg-white p-4 rounded shadow">
-          <h2 className="font-semibold mb-2">
-            {editing ? "Edit Menu" : "Add Menu"}
-          </h2>
-          <form onSubmit={handleSaveNewOrEdit} className="grid grid-cols-2 gap-3">
-            <div>
-              <label>Title</label>
-              <input
-                className="border p-2 w-full"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label>URL</label>
-              <input
-                className="border p-2 w-full"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="/about"
-              />
-            </div>
-            <div>
-              <label>Active</label>
-              <select
-                className="border p-2 w-full"
-                value={active ? "1" : "0"}
-                onChange={(e) => setActive(e.target.value === "1")}
-              >
-                <option value="1">Active</option>
-                <option value="0">Inactive</option>
-              </select>
-            </div>
-            <div>
-              <label>Link Post</label>
-              <div className="flex items-center gap-2">
-                <input
-                  className="border p-2 flex-1"
-                  value={postTitle}
-                  readOnly
-                  placeholder="No post linked"
-                />
-                <button
-                  type="button"
-                  onClick={() => setPostModalOpen(true)}
-                  className="bg-blue-600 text-white px-3 py-2 rounded"
-                >
-                  Select
-                </button>
-              </div>
-            </div>
-            <div className="col-span-2 flex gap-2 mt-2">
-              <button className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">
-                {editing ? "Update" : "Create"}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setEditing(null);
-                  resetForm();
-                }}
-                className="px-4 py-2 border rounded"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* Modal for posts */}
+        {/* Post Modal */}
         {postModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-[700px] max-h-[80vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-2">
+            <div className="bg-white rounded shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto p-4">
               <h3 className="text-xl font-bold mb-4">Select Post</h3>
-              <div className="flex gap-2 mb-3">
+              <div className="flex gap-2 mb-3 flex-wrap">
                 <input
                   type="text"
                   placeholder="Search..."
                   className="border p-2 flex-1"
                   value={search}
-                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setPage(1);
+                  }}
                 />
                 <select
-                  className="border p-2 w-full mb-3"
+                  className="border p-2"
                   value={categoryId}
-                  onChange={(e) => { setCategoryId(e.target.value); setPage(1); }}
+                  onChange={(e) => {
+                    setCategoryId(e.target.value);
+                    setPage(1);
+                  }}
                 >
                   <option value="">All Categories</option>
                   {categories.map((c) => (
-                    <option key={c.id} value={c.id}>{c.title}</option>
+                    <option key={c.id} value={c.id}>
+                      {c.title}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -810,7 +853,11 @@ export default function ManageMenus() {
                       <td className="text-right">
                         <button
                           className="bg-green-600 text-white px-2 py-1 rounded"
-                          onClick={() => { setPostId(p.id); setPostTitle(p.title); setPostModalOpen(false); }}
+                          onClick={() => {
+                            setPostUUID(p.uuid);
+                            setPostTitle(p.title);
+                            setPostModalOpen(false);
+                          }}
                         >
                           Select
                         </button>
@@ -819,16 +866,32 @@ export default function ManageMenus() {
                   ))}
                 </tbody>
               </table>
-
-              {/* Pagination */}
-              <div className="flex justify-between items-center">
-                <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="px-3 py-1 border rounded">Prev</button>
-                <span>Page {page} of {lastPage}</span>
-                <button disabled={page >= lastPage} onClick={() => setPage((p) => p + 1)} className="px-3 py-1 border rounded">Next</button>
+              <div className="flex justify-between items-center mb-2">
+                <button
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => p - 1)}
+                  className="px-3 py-1 border rounded disabled:opacity-50"
+                >
+                  Prev
+                </button>
+                <span>
+                  Page {page} / {lastPage}
+                </span>
+                <button
+                  disabled={page >= lastPage}
+                  onClick={() => setPage((p) => p + 1)}
+                  className="px-3 py-1 border rounded disabled:opacity-50"
+                >
+                  Next
+                </button>
               </div>
-
-              <div className="mt-4 text-right">
-                <button onClick={() => setPostModalOpen(false)} className="px-4 py-2 border rounded">Close</button>
+              <div className="text-right">
+                <button
+                  onClick={() => setPostModalOpen(false)}
+                  className="px-4 py-2 border rounded"
+                >
+                  Close
+                </button>
               </div>
             </div>
           </div>

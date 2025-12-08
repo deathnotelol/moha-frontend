@@ -30,7 +30,7 @@ export default function FeaturesBotton() {
 
   const fetchLawPost = async () => {
     try {
-      const res = await api.get(`/posts/5e656d02-ca82-11f0-9d87-00155d100213`);
+      const res = await api.get(`/posts/ada78a6b-d0ca-11f0-9d87-00155d100213`);
       setLawPost(res.data || null);
     } catch (err) {
       console.error(err);
@@ -144,7 +144,7 @@ export default function FeaturesBotton() {
             </div>
             <div className="mt-6 text-center">
               <Link
-                to="/mm/posts/5e656d02-ca82-11f0-9d87-00155d100213"
+                to="/mm/posts/ada78a6b-d0ca-11f0-9d87-00155d100213"
                 className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-full transition"
               >
                 {isEnglish ? "Read More" : "အသေးစိတ်ကြည့်ရှုရန်"}

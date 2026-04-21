@@ -37,7 +37,7 @@ export default function PostCreate() {
     const y = window.innerHeight * 0.8;
 
     const token = localStorage.getItem("token"); // JWT token ကို ယူမယ်
-    const cmsURL = `https://10.10.6.15/moha-api/laravel-filemanager?editor=${meta.fieldname}&type=${meta.filetype}&token=${token}`;
+    const cmsURL = `https://192.168.110.15/moha-api/laravel-filemanager?editor=${meta.fieldname}&type=${meta.filetype}&token=${token}`;
 
     tinymce.activeEditor.windowManager.openUrl({
       url: cmsURL,
@@ -50,8 +50,8 @@ export default function PostCreate() {
       onMessage: (api, message) => {
         // message.origin ကို check လုပ်ပြီး accept
         const allowedOrigins = [
-          "https://10.10.6.15", // Laravel backend
-          "https://10.10.6.15:3001", // React dev server
+          "https://192.168.110.15", // Laravel backend
+          "https://192.168.110.15:3001", // React dev server
         ];
 
         if (!allowedOrigins.includes(message.origin)) return;

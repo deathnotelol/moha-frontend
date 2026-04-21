@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = "https://10.10.6.15/moha-api/api";
+const baseURL = "https://192.168.110.15/moha-api/api";
 
 const api = axios.create({
   baseURL,

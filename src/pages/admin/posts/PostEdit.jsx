@@ -196,7 +196,7 @@
 //               {existingImages.map((img, idx) => (
 //                 <div key={idx} className="relative">
 //                   <img
-//                     src={`https://10.10.6.15/moha-api/public/${img}`}
+//                     src={`https://192.168.110.15/moha-api/public/${img}`}
 //                     alt={`existing-${idx}`}
 //                     className="w-[100px] h-[100px] object-cover rounded"
 //                   />

@@ -55,7 +55,7 @@
 //               {post.images && post.images.length > 0 && (
 //                 <div className="overflow-hidden">
 //                   <img
-//                     src={`https://10.10.6.15/moha-api/public/${post.images[0]}`}
+//                     src={`https://192.168.110.15/moha-api/public/${post.images[0]}`}
 //                     alt={post.title}
 //                     className="h-44 w-full object-cover transform group-hover:scale-105 transition duration-500"
 //                   />
@@ -183,7 +183,7 @@ export default function NewsAndUpdates({ lang = "mm" }) {
               {post.images && post.images.length > 0 && (
                 <div className="overflow-hidden">
                   <img
-                    src={`https://10.10.6.15/moha-api/public/${post.images[0]}`}
+                    src={`https://192.168.110.15/moha-api/public/${post.images[0]}`}
                     alt={post.title}
                     className="h-44 w-full object-cover transform group-hover:scale-105 transition duration-500"
                   />

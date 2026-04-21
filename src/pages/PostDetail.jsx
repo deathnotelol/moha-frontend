@@ -26,7 +26,7 @@
 //     cleaned = cleaned.replace(/<div[^>]*>\s*<\/div>/gi, "");
 //     cleaned = cleaned.replace(
 //       /href="(images\/[^"]+)"/g,
-//       'href="https://10.10.6.15/moha-api/public/storage/uploads/$1"'
+//       'href="https://192.168.110.15/moha-api/public/storage/uploads/$1"'
 //     );
 //     return cleaned;
 //   };
@@ -110,7 +110,7 @@
 //                         src={
 //                           img === placeholderImg
 //                             ? placeholderImg
-//                             : `https://10.10.6.15/moha-api/public/${img}`
+//                             : `https://192.168.110.15/moha-api/public/${img}`
 //                         }
 //                         alt={`${post.title}-${idx}`}
 //                         className="rounded-xl max-h-[500px] w-auto mx-auto object-contain transition-transform duration-300 hover:scale-105"
@@ -169,7 +169,7 @@ const PostDetail = () => {
     cleaned = cleaned.replace(/<div[^>]*>\s*<\/div>/gi, "");
     cleaned = cleaned.replace(
       /href="(images\/[^"]+)"/g,
-      'href="https://10.10.6.15/moha-api/public/storage/uploads/$1"'
+      'href="https://192.168.110.15/moha-api/public/storage/uploads/$1"'
     );
     return cleaned;
   };
@@ -249,7 +249,7 @@ const PostDetail = () => {
                       <img
                         src={
                           img && img !== placeholderImg
-                            ? `https://10.10.6.15/moha-api/public/${img}`
+                            ? `https://192.168.110.15/moha-api/public/${img}`
                             : placeholderImg
                         }
                         alt={`${post.title}-${idx}`}

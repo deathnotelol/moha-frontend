@@ -135,7 +135,7 @@ export default function SearchPage() {
 
       {/* Results Grid */}
 
-      {/* src={`https://10.10.6.15/moha-api/public/${post.all_images[0]}`} */}
+      {/* src={`https://192.168.110.15/moha-api/public/${post.all_images[0]}`} */}
 
       {results.length > 0 ? (
         <>
@@ -148,7 +148,7 @@ export default function SearchPage() {
               >
                 {post.all_images?.length > 0 && (
                   <img
-                    src={`https://10.10.6.15/moha-api/public/${post.all_images[0]}`}
+                    src={`https://192.168.110.15/moha-api/public/${post.all_images[0]}`}
                     alt={post.title}
                     className="w-full h-48 object-cover rounded-md mb-4"
                   />

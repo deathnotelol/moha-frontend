@@ -158,7 +158,7 @@
 //                 <td className="p-2">
 //                   {p.images && p.images.length > 0 && p.images[0] ? (
 //                     <img
-//                       src={`https://10.10.6.15/moha-api/public/${p.images[0]}`}
+//                       src={`https://192.168.110.15/moha-api/public/${p.images[0]}`}
 //                       alt={p.title}
 //                       className="w-[75px] h-[75px] object-cover rounded"
 //                     />
@@ -458,7 +458,7 @@ export default function Posts() {
                 <td className="p-2">
                   {p.images?.length > 0 ? (
                     <img
-                      src={`https://10.10.6.15/moha-api/public/${p.images[0]}`}
+                      src={`https://192.168.110.15/moha-api/public/${p.images[0]}`}
                       alt={p.title}
                       className="w-[75px] h-[75px] object-cover rounded"
                     />

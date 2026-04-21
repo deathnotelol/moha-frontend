@@ -88,7 +88,7 @@ export default function Features() {
                     <div className="flex items-center gap-3">
                       {post.images?.length > 0 && (
                         <img
-                          src={`https://10.10.6.15/moha-api/public/${post.images[0]}`}
+                          src={`https://192.168.110.15/moha-api/public/${post.images[0]}`}
                           alt={post.title}
                           className="w-12 h-12 object-cover rounded-full border border-gray-200 hover:scale-105 transition transform"
                         />

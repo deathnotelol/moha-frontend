@@ -4,7 +4,7 @@ module.exports = function (app) {
   app.use(
     '/moha-api',
     createProxyMiddleware({
-      target: 'https://10.10.6.15',
+      target: 'https://192.168.110.15',
       changeOrigin: true,
       secure: false,
     })

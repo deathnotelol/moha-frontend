@@ -85,7 +85,7 @@ const fetchPosts = async (pageNum = 1) => {
               >
                 {images.length > 0 && (
                   <img
-                    src={`https://10.10.6.15/moha-api/public/${images[0]}`}
+                    src={`https://192.168.110.15/moha-api/public/${images[0]}`}
                     alt={post.title}
                     className="w-full h-48 object-cover"
                   />
